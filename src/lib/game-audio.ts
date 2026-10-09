@@ -12,7 +12,7 @@ export function playGameSound(type: "kill" | "hit" | "start" | "end", enabled: b
   oscillator.connect(gain);
   gain.connect(ctx.destination);
   oscillator.type = type === "hit" ? "sawtooth" : "triangle";
-  const frequencies = { kill: [700, 80], hit: [150, 45], start: [440, 880], end: [880, 440] };
+  const frequencies = { kill: [700, 80], hit: [150, 45], start: [440, 880], end: [880, 440] } as const;
   const [from, to] = frequencies[type];
   oscillator.frequency.setValueAtTime(from, now);
   oscillator.frequency.exponentialRampToValueAtTime(to, now + 0.22);

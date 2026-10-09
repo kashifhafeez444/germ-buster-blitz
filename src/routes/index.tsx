@@ -28,7 +28,7 @@ const characters = [
   { name: "The Cool One", image: characterOne.url },
   { name: "The Fearless One", image: characterTwo.url },
   { name: "The Chill One", image: characterThree.url },
-];
+] as const;
 
 function Index() {
   const [screen, setScreen] = useState<"entry" | "playing" | "results" | "leaders">("entry");
@@ -89,7 +89,7 @@ function Index() {
       </form>
     </div>}
 
-    {screen === "playing" && <GameArena key={round} character={character.image} sound={sound} onFinish={(value) => { setResult(value); setScreen("results"); }}/ >}
+    {screen === "playing" && <GameArena key={round} character={character.image} sound={sound} onFinish={(value) => { setResult(value); setScreen("results"); }}/>}
 
     {(screen === "results" || screen === "leaders") && <section className="results-page">
       <span className="results-eyebrow">{screen === "results" ? "MISSION COMPLETE" : "THE HALL OF HEROES"}</span>
