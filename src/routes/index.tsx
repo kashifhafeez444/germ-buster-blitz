@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Clock3, Crosshair, Expand, Mail, Medal, Play, RotateCcw, Shield, Sparkles, Trophy, UserRound, Volume2, VolumeX, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GameArena, GermSprite, type GameResult } from "@/components/game-arena";
-import { playGameSound, unlockAudio } from "@/lib/game-audio";
+import { playGameSound, startMusic, stopMusic, unlockAudio } from "@/lib/game-audio";
 import { rankPlayers, sampleLeaders } from "@/lib/game-rules";
 import arenaImage from "@/assets/arena.jpg";
 import characterOne from "@/assets/Character-01.png.asset.json";
@@ -38,6 +38,10 @@ function Index() {
   const [sound, setSound] = useState(true);
   const [round, setRound] = useState(0);
   const [result, setResult] = useState<GameResult>({ score: 0, kills: 0, hits: 0 });
+  useEffect(() => {
+    if (screen === "playing") startMusic(sound);
+    else stopMusic();
+  }, [screen, sound]);
   const character = characters[selected] ?? characters[2];
   const start = () => {
     unlockAudio();
