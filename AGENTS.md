@@ -16,3 +16,4 @@
 - Keep player details and scores in session React state only until a leaderboard API is supplied; never persist or transmit the registration details in practice mode.
 - Use uploaded assets through Lovable Assets pointers and generated artwork as imported assets so originals remain unchanged.
 - Keep synthesised game audio in a browser-only helper invoked after a player gesture so audio permissions and SSR are safe.
+- Keep the decorative space-travel canvas independent of game physics and timing, with no pointer events and reduced-motion support, so the effect cannot interfere with play.
