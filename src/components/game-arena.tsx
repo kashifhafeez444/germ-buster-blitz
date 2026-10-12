@@ -111,9 +111,11 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
         const body = Matter.Bodies.circle(width / 2 + dx * radius, height / 2 + dy * radius, Math.max(24, Math.min(width, height) * 0.038), { label: String(++id), isSensor: true, frictionAir: 0 });
         bodies.set(id, { body, type: Math.floor(Math.random() * 4) });
         Matter.Composite.add(engine.world, body);
-        nextSpawn = now + Math.max(420, 1000 - elapsed * 18);
+        const stage = elapsed < ROUND_SECONDS / 3 ? 0 : elapsed < (ROUND_SECONDS * 2) / 3 ? 1 : 2;
+        nextSpawn = now + Math.max(420, (1000 - elapsed * 18) / (stage + 1));
       }
-      const speed = Math.min(width, height) * (0.00105 + elapsed * 0.000018);
+      const stage = elapsed < ROUND_SECONDS / 3 ? 0 : elapsed < (ROUND_SECONDS * 2) / 3 ? 1 : 2;
+      const speed = Math.min(width, height) * (0.00105 + elapsed * 0.000018) * (1 + stage * 0.5);
       bodies.forEach(({ body }) => {
         const dx = width / 2 - body.position.x, dy = height / 2 - body.position.y;
         const length = Math.hypot(dx, dy) || 1;
