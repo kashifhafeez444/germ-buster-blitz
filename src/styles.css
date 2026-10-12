@@ -205,6 +205,9 @@
 .game-footer { max-width: 1390px; margin: 0 auto; padding: 24px 55px 30px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); gap: 20px; }.game-footer>span { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted-foreground); }.game-footer>span svg { width: 13px; height: 13px; color: var(--gold); }.footer-brand { width: 150px; height: 45px; object-fit: contain; }.leaderboard-link { color: var(--gold); font-size: 11px; display: inline-flex; gap: 7px; padding: 8px 0; }.leaderboard-link:hover { color: var(--foreground); }.leaderboard-link svg { width: 14px; height: 14px; }
 .live-arena { position: relative; height: calc(100svh - 100px); min-height: 420px; overflow: hidden; touch-action: none; user-select: none; }
 .playing.game-app::before { background: color-mix(in oklch, var(--background) 30%, transparent); }
+.space-travel { position: fixed; inset: 0; width: 100vw; height: 100svh; z-index: 0; pointer-events: none; }
+.playing .game-header { position: relative; z-index: 2; }
+.playing .protected-character, .playing .arena-bottom { z-index: 1; }
 .playing .arena-backdrop {
   /* Center the artwork's circle in the playable area, below the header. */
   --playable-height: max(420px, calc(100svh - var(--game-header-height)));

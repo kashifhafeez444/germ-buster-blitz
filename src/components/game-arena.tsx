@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { playGameSound } from "@/lib/game-audio";
 import { HIT_PENALTY, KILL_POINTS, ROUND_SECONDS } from "@/lib/game-rules";
 import germsImage from "@/assets/germs.png";
+import { SpaceTravel } from "@/components/space-travel";
 
 type Germ = { id: number; type: number; x: number; y: number };
 type Burst = Germ & { hit: boolean };
@@ -139,6 +140,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
   }, [countdown]);
 
   return <div className="live-arena" ref={arena}>
+    <SpaceTravel />
     <div className="game-hud"><div className="score-readout"><span>SCORE</span><strong>{score.toLocaleString()}</strong></div><div className={`timer-readout ${time <= 5 ? "urgent" : ""}`}><span>TIME LEFT</span><strong>00:{String(time).padStart(2, "0")}</strong></div></div>
     <div className={`protected-character ${hitFlash ? "shield-hit" : ""}`}><div className="shield-ring"/><div className="shield-ring outer"/><img src={character} alt="Your protected character"/><span className="shield-label">{hitFlash ? "SHIELD HIT!" : "PROTECT YOUR HERO"}</span></div>
     {germs.map((germ) => <Button key={germ.id} variant="germ" className="enemy" aria-label={`Destroy germ ${germ.id}`} style={{ left: germ.x, top: germ.y }} onPointerDown={(event) => { event.preventDefault(); killRef.current(germ.id); }}><GermSprite type={germ.type}/></Button>)}
