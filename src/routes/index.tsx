@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Clock3, Crosshair, Expand, Mail, Medal, Play, RotateCcw, Shield, Sparkles, Trophy, UserRound, Volume2, VolumeX, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GameArena, GermSprite, type GameResult } from "@/components/game-arena";
