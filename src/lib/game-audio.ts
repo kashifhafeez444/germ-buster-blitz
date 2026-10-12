@@ -1,18 +1,67 @@
+import bgMusic from "@/assets/bg-music.mp3.asset.json";
+import blastSound from "@/assets/blast-sound.mp3.asset.json";
+
 let audio: AudioContext | undefined;
+let music: HTMLAudioElement | undefined;
+let blastBuffer: AudioBuffer | undefined;
+let blastLoading = false;
+
 export function unlockAudio() {
   audio ??= new AudioContext();
   void audio.resume();
+  if (!blastBuffer && !blastLoading) {
+    blastLoading = true;
+    void fetch(blastSound.url)
+      .then((response) => response.arrayBuffer())
+      .then((bytes) => audio!.decodeAudioData(bytes))
+      .then((buffer) => { blastBuffer = buffer; })
+      .catch(() => { blastLoading = false; });
+  }
 }
+
+export function startMusic(enabled: boolean) {
+  music ??= new Audio(bgMusic.url);
+  music.loop = true;
+  music.volume = 0.35;
+  if (enabled) {
+    if (music.paused) {
+      music.currentTime = 0;
+      void music.play().catch(() => {});
+    }
+  } else {
+    music.pause();
+  }
+}
+
+export function stopMusic() {
+  if (music && !music.paused) music.pause();
+}
+
+function playBlast() {
+  if (!audio || !blastBuffer) return;
+  const source = audio.createBufferSource();
+  const gain = audio.createGain();
+  source.buffer = blastBuffer;
+  gain.gain.value = 0.8;
+  source.connect(gain);
+  gain.connect(audio.destination);
+  source.start();
+}
+
 export function playGameSound(type: "kill" | "hit" | "start" | "end", enabled: boolean) {
   if (!enabled || !audio) return;
+  if (type === "kill" || type === "hit") {
+    playBlast();
+    return;
+  }
   const ctx = audio;
   const now = ctx.currentTime;
   const oscillator = ctx.createOscillator();
   const gain = ctx.createGain();
   oscillator.connect(gain);
   gain.connect(ctx.destination);
-  oscillator.type = type === "hit" ? "sawtooth" : "triangle";
-  const frequencies = { kill: [700, 80], hit: [150, 45], start: [440, 880], end: [880, 440] } as const;
+  oscillator.type = "triangle";
+  const frequencies = { start: [440, 880], end: [880, 440] } as const;
   const [from, to] = frequencies[type];
   oscillator.frequency.setValueAtTime(from, now);
   oscillator.frequency.exponentialRampToValueAtTime(to, now + 0.22);
@@ -20,15 +69,4 @@ export function playGameSound(type: "kill" | "hit" | "start" | "end", enabled: b
   gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
   oscillator.start(now);
   oscillator.stop(now + 0.3);
-  if (type === "kill" || type === "hit") {
-    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.18, ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
-    const noise = ctx.createBufferSource();
-    noise.buffer = buffer;
-    const noiseGain = ctx.createGain();
-    noiseGain.gain.value = 0.2;
-    noise.connect(noiseGain).connect(ctx.destination);
-    noise.start();
-  }
 }
