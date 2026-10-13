@@ -83,7 +83,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
       if (!item || !active) return;
       bodies.delete(germId);
       Matter.Composite.remove(engine.world, item.body);
-      burst({ id: germId, type: item.type, x: item.body.position.x, y: item.body.position.y }, hit);
+      burst({ id: germId, type: item.type, x: item.body.position.x, y: item.body.position.y, born: item.born }, hit);
       state.current.score += hit ? -HIT_PENALTY : KILL_POINTS;
       if (hit) state.current.hits++; else state.current.kills++;
       setScore(state.current.score);
