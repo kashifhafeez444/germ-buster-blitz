@@ -244,3 +244,6 @@
 @media (max-width: 700px) { .panel-heading { gap: 12px; align-items: flex-start; }.panel-heading h2 { font-size: 25px; }.panel-heading p { line-height: 1.5; }.round-badge { margin-top: 4px; }.leaderboard-title { gap: 10px; }.leaderboard-title>span { max-width: 120px; text-align: right; }.results-page h1 { overflow-wrap: anywhere; } }
 @media (min-width: 1700px) and (max-height: 1200px) { .welcome-layout { padding-top: 20px; padding-bottom: 15px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+.footer-sponsor { width: 40px; height: 74px; object-fit: contain; flex-shrink: 0; filter: drop-shadow(0 3px 10px rgba(0, 0, 0, 0.45)); }
+.arena-sponsor { width: 24px; height: 44px; object-fit: contain; flex-shrink: 0; pointer-events: none; filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45)); }
+@media (max-width: 700px) { .footer-sponsor { width: 30px; height: 56px; } .arena-sponsor { width: 18px; height: 33px; } }
