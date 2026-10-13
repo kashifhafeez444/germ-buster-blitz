@@ -11,6 +11,7 @@ import characterTwo from "@/assets/Character-02.png.asset.json";
 import characterThree from "@/assets/Character-03.png.asset.json";
 import logo from "@/assets/LOOG@3x.png.asset.json";
 import brand from "@/assets/Asset_4@3x.png.asset.json";
+import telfastPack from "@/assets/telfast-pack.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -105,6 +106,6 @@ function Index() {
       <div className="results-actions">{screen === "results" && <Button variant="arcade" onClick={start}><RotateCcw/> PLAY AGAIN</Button>}<Button variant={screen === "leaders" ? "arcade" : "outline"} className="back-button" onClick={() => { setScreen("entry"); if (screen === "results") { setName(""); setEmail(""); } }}>{screen === "leaders" ? <ArrowLeft/> : <UserRound/>}{screen === "leaders" ? "BACK TO GAME" : "NEW PLAYER"}</Button></div>
     </section>}
 
-    {screen !== "playing" && <footer className="game-footer"><span><Zap/> A little rush. A lot of protection.</span><Button variant="ghost" className="leaderboard-link" onClick={() => setScreen(screen === "leaders" ? "entry" : "leaders")}><Trophy/>{screen === "leaders" ? "Back to game" : "View leaderboard"}<ArrowRight/></Button><img src={brand.url} className="footer-brand" alt="It’s a No-Brainer"/></footer>}
+    {screen !== "playing" && <footer className="game-footer"><span><Zap/> A little rush. A lot of protection.</span><Button variant="ghost" className="leaderboard-link" onClick={() => setScreen(screen === "leaders" ? "entry" : "leaders")}><Trophy/>{screen === "leaders" ? "Back to game" : "View leaderboard"}<ArrowRight/></Button><img src={telfastPack.url} className="footer-sponsor" alt="Telfast Kids"/><img src={brand.url} className="footer-brand" alt="It’s a No-Brainer"/></footer>}
   </main>;
 }
