@@ -61,6 +61,7 @@ function Index() {
   return <main className={`game-app ${screen === "playing" ? "playing" : ""}`}>
     <img className="arena-backdrop" src={arenaImage} alt="" width={1920} height={1088}/>
     <header className="game-header">
+      <img src={telfastPack.url} alt="Telfast Kids" className="header-sponsor" width={1238} height={2306}/>
       <img src={logo.url} alt="Allergy Rush" className="header-logo" width={1920} height={182}/>
       <div className="header-tools"><span className="live-badge"><i/> THE 30-SECOND CHALLENGE</span>
         <Button variant="utility" size="icon" title={sound ? "Mute sound" : "Enable sound"} aria-label={sound ? "Mute sound" : "Enable sound"} onClick={() => { unlockAudio(); setSound(!sound); }}>{sound ? <Volume2/> : <VolumeX/>}</Button>
@@ -106,6 +107,6 @@ function Index() {
       <div className="results-actions">{screen === "results" && <Button variant="arcade" onClick={start}><RotateCcw/> PLAY AGAIN</Button>}<Button variant={screen === "leaders" ? "arcade" : "outline"} className="back-button" onClick={() => { setScreen("entry"); if (screen === "results") { setName(""); setEmail(""); } }}>{screen === "leaders" ? <ArrowLeft/> : <UserRound/>}{screen === "leaders" ? "BACK TO GAME" : "NEW PLAYER"}</Button></div>
     </section>}
 
-    {screen !== "playing" && <footer className="game-footer"><span><Zap/> A little rush. A lot of protection.</span><Button variant="ghost" className="leaderboard-link" onClick={() => setScreen(screen === "leaders" ? "entry" : "leaders")}><Trophy/>{screen === "leaders" ? "Back to game" : "View leaderboard"}<ArrowRight/></Button><img src={telfastPack.url} className="footer-sponsor" alt="Telfast Kids"/><img src={brand.url} className="footer-brand" alt="It’s a No-Brainer"/></footer>}
+    {screen !== "playing" && <footer className="game-footer"><span><Zap/> A little rush. A lot of protection.</span><Button variant="ghost" className="leaderboard-link" onClick={() => setScreen(screen === "leaders" ? "entry" : "leaders")}><Trophy/>{screen === "leaders" ? "Back to game" : "View leaderboard"}<ArrowRight/></Button><img src={brand.url} className="footer-brand" alt="It’s a No-Brainer"/></footer>}
   </main>;
 }

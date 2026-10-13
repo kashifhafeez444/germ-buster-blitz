@@ -5,7 +5,6 @@ import { playGameSound } from "@/lib/game-audio";
 import { HIT_PENALTY, KILL_POINTS, ROUND_SECONDS } from "@/lib/game-rules";
 import germsImage from "@/assets/germs.png";
 import { SpaceTravel } from "@/components/space-travel";
-import telfastPack from "@/assets/telfast-pack.png.asset.json";
 
 type Germ = { id: number; type: number; x: number; y: number };
 type Burst = Germ & { hit: boolean };
@@ -149,6 +148,6 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
     {germs.map((germ) => <Button key={germ.id} variant="germ" className="enemy" aria-label={`Destroy germ ${germ.id}`} style={{ left: germ.x, top: germ.y }} onPointerDown={(event) => { event.preventDefault(); killRef.current(germ.id); }}><GermSprite type={germ.type}/></Button>)}
     {bursts.map((b) => <div key={b.id} className={`burst ${b.hit ? "burst-hit" : ""}`} style={{ left: b.x, top: b.y }}><span className="burst-ring"/><span className="burst-sparks">✦</span><strong>{b.hit ? "−125" : "+250"}</strong></div>)}
     {countdown !== null && <div className="countdown"><span>GET READY</span><strong key={countdown}>{countdown}</strong><p>Keep the germs out.</p></div>}
-    <div className="arena-bottom"><span><i/> SHIELD ACTIVE</span><span>TAP GERMS. SAVE YOUR HERO.</span><span>+250 KILL <b> / </b> −125 HIT</span><img src={telfastPack.url} className="arena-sponsor" alt="Telfast Kids"/></div>
+    <div className="arena-bottom"><span><i/> SHIELD ACTIVE</span><span>TAP GERMS. SAVE YOUR HERO.</span><span>+250 KILL <b> / </b> −125 HIT</span></div>
   </div>;
 }
