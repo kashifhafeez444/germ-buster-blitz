@@ -9,6 +9,14 @@ import { SpaceTravel } from "@/components/space-travel";
 type Germ = { id: number; type: number; x: number; y: number; born: number };
 type Burst = Germ & { hit: boolean };
 export type GameResult = { score: number; kills: number; hits: number };
+// Germs pop in small and grow to full size with a smooth ease-out.
+const GROW_DURATION = 2200;
+const GROW_FROM = 0.55;
+export function germScale(born: number, now: number = performance.now()): number {
+  const progress = Math.min(1, Math.max(0, (now - born) / GROW_DURATION));
+  const eased = 1 - Math.pow(1 - progress, 3);
+  return GROW_FROM + (1 - GROW_FROM) * eased;
+}
 export function GermSprite({ type, className = "" }: { type: number; className?: string }) {
   return <span className={`germ-sprite germ-type-${type} ${className}`} style={{ backgroundImage: `url(${germsImage})` }} />;
 }
