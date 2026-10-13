@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Matter from "matter-js";
 import { Button } from "@/components/ui/button";
 import { playGameSound } from "@/lib/game-audio";
@@ -153,7 +153,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
     <SpaceTravel />
     <div className="game-hud"><div className="score-readout"><span>SCORE</span><strong>{score.toLocaleString()}</strong></div><div className={`timer-readout ${time <= 5 ? "urgent" : ""}`}><span>TIME LEFT</span><strong>00:{String(time).padStart(2, "0")}</strong></div></div>
     <div className={`protected-character ${hitFlash ? "shield-hit" : ""}`}><div className="shield-ring"/><div className="shield-ring outer"/><img src={character} alt="Your protected character"/><span className="shield-label">{hitFlash ? "SHIELD HIT!" : "PROTECT YOUR HERO"}</span></div>
-    {germs.map((germ) => <Button key={germ.id} variant="germ" className="enemy" aria-label={`Destroy germ ${germ.id}`} style={{ left: germ.x, top: germ.y, "--germ-scale": germScale(germ.born) } as React.CSSProperties} onPointerDown={(event) => { event.preventDefault(); killRef.current(germ.id); }}><GermSprite type={germ.type}/></Button>)}
+    {germs.map((germ) => <Button key={germ.id} variant="germ" className="enemy" aria-label={`Destroy germ ${germ.id}`} style={{ left: germ.x, top: germ.y, "--germ-scale": germScale(germ.born) } as CSSProperties} onPointerDown={(event) => { event.preventDefault(); killRef.current(germ.id); }}><GermSprite type={germ.type}/></Button>)}
     {bursts.map((b) => <div key={b.id} className={`burst ${b.hit ? "burst-hit" : ""}`} style={{ left: b.x, top: b.y }}><span className="burst-ring"/><span className="burst-sparks">✦</span><strong>{b.hit ? "−125" : "+250"}</strong></div>)}
     {countdown !== null && <div className="countdown"><span>GET READY</span><strong key={countdown}>{countdown}</strong><p>Keep the germs out.</p></div>}
     <div className="arena-bottom"><span><i/> SHIELD ACTIVE</span><span>TAP GERMS. SAVE YOUR HERO.</span><span>+250 KILL <b> / </b> −125 HIT</span></div>
