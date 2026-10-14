@@ -6,16 +6,16 @@ import { HIT_PENALTY, KILL_POINTS, ROUND_SECONDS } from "@/lib/game-rules";
 import germsImage from "@/assets/germs.png";
 import { SpaceTravel } from "@/components/space-travel";
 
-type Germ = { id: number; type: number; x: number; y: number; born: number };
+type Germ = { id: number; type: number; x: number; y: number; scale: number };
 type Burst = Germ & { hit: boolean };
 export type GameResult = { score: number; kills: number; hits: number };
-// Germs pop in small and grow to full size with a smooth ease-out.
-const GROW_DURATION = 2200;
-const GROW_FROM = 0.55;
-export function germScale(born: number, now: number = performance.now()): number {
-  const progress = Math.min(1, Math.max(0, (now - born) / GROW_DURATION));
-  const eased = 1 - Math.pow(1 - progress, 3);
-  return GROW_FROM + (1 - GROW_FROM) * eased;
+// Germs pop in small and keep swelling until they reach the hero.
+const GROW_FROM = 0.4;
+const GROW_TO = 1.6;
+export function germScale(progress: number): number {
+  const clamped = Math.min(1, Math.max(0, progress));
+  const eased = 1 - Math.pow(1 - clamped, 3);
+  return GROW_FROM + (GROW_TO - GROW_FROM) * eased;
 }
 export function GermSprite({ type, className = "" }: { type: number; className?: string }) {
   return <span className={`germ-sprite germ-type-${type} ${className}`} style={{ backgroundImage: `url(${germsImage})` }} />;
@@ -51,7 +51,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
     const element = arena.current;
     if (!element || countdown !== null) return;
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 0, scale: 0 } });
-    const bodies = new Map<number, { body: Matter.Body; type: number; born: number }>();
+    const bodies = new Map<number, { body: Matter.Body; type: number; startDist: number }>();
     let width = element.clientWidth;
     let height = element.clientHeight;
     const shield = Matter.Bodies.circle(width / 2, height / 2, Math.min(width, height) * 0.13, { isStatic: true, isSensor: true });
@@ -83,7 +83,8 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
       if (!item || !active) return;
       bodies.delete(germId);
       Matter.Composite.remove(engine.world, item.body);
-      burst({ id: germId, type: item.type, x: item.body.position.x, y: item.body.position.y, born: item.born }, hit);
+      const dx = item.body.position.x - width / 2, dy = item.body.position.y - height / 2;
+      burst({ id: germId, type: item.type, x: item.body.position.x, y: item.body.position.y, scale: germScale(1 - Math.min(1, Math.hypot(dx, dy) / item.startDist)) }, hit);
       state.current.score += hit ? -HIT_PENALTY : KILL_POINTS;
       if (hit) state.current.hits++; else state.current.kills++;
       setScore(state.current.score);
@@ -117,7 +118,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
         const dx = Math.cos(angle), dy = Math.sin(angle);
         const radius = Math.min((width / 2 + 35) / Math.max(Math.abs(dx), 0.001), (height / 2 + 35) / Math.max(Math.abs(dy), 0.001));
         const body = Matter.Bodies.circle(width / 2 + dx * radius, height / 2 + dy * radius, Math.max(24, Math.min(width, height) * 0.038), { label: String(++id), isSensor: true, frictionAir: 0 });
-        bodies.set(id, { body, type: Math.floor(Math.random() * 4), born: now });
+        bodies.set(id, { body, type: Math.floor(Math.random() * 4), startDist: radius });
         Matter.Composite.add(engine.world, body);
         const stage = elapsed < ROUND_SECONDS / 3 ? 0 : elapsed < (ROUND_SECONDS * 2) / 3 ? 1 : 2;
         nextSpawn = now + Math.max(420, (1000 - elapsed * 18) / (stage + 1));
@@ -132,7 +133,10 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
       Matter.Engine.update(engine, Math.min(now - last, 33));
       last = now;
       if (now - lastRender > 25) {
-        setGerms([...bodies].map(([germId, { body, type, born }]) => ({ id: germId, type, x: body.position.x, y: body.position.y, born })));
+        setGerms([...bodies].map(([germId, { body, type, startDist }]) => {
+          const dx = body.position.x - width / 2, dy = body.position.y - height / 2;
+          return { id: germId, type, x: body.position.x, y: body.position.y, scale: germScale(1 - Math.min(1, Math.hypot(dx, dy) / startDist)) };
+        }));
         lastRender = now;
       }
       raf = requestAnimationFrame(frame);
@@ -153,7 +157,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
     <SpaceTravel />
     <div className="game-hud"><div className="score-readout"><span>SCORE</span><strong>{score.toLocaleString()}</strong></div><div className={`timer-readout ${time <= 5 ? "urgent" : ""}`}><span>TIME LEFT</span><strong>00:{String(time).padStart(2, "0")}</strong></div></div>
     <div className={`protected-character ${hitFlash ? "shield-hit" : ""}`}><div className="shield-ring"/><div className="shield-ring outer"/><img src={character} alt="Your protected character"/><span className="shield-label">{hitFlash ? "SHIELD HIT!" : "PROTECT YOUR HERO"}</span></div>
-    {germs.map((germ) => <Button key={germ.id} variant="germ" className="enemy" aria-label={`Destroy germ ${germ.id}`} style={{ left: germ.x, top: germ.y, "--germ-scale": germScale(germ.born) } as CSSProperties} onPointerDown={(event) => { event.preventDefault(); killRef.current(germ.id); }}><GermSprite type={germ.type}/></Button>)}
+    {germs.map((germ) => <Button key={germ.id} variant="germ" className="enemy" aria-label={`Destroy germ ${germ.id}`} style={{ left: germ.x, top: germ.y, "--germ-scale": germ.scale } as CSSProperties} onPointerDown={(event) => { event.preventDefault(); killRef.current(germ.id); }}><GermSprite type={germ.type}/></Button>)}
     {bursts.map((b) => <div key={b.id} className={`burst ${b.hit ? "burst-hit" : ""}`} style={{ left: b.x, top: b.y }}><span className="burst-ring"/><span className="burst-sparks">✦</span><strong>{b.hit ? "−125" : "+250"}</strong></div>)}
     {countdown !== null && <div className="countdown"><span>GET READY</span><strong key={countdown}>{countdown}</strong><p>Keep the germs out.</p></div>}
     <div className="arena-bottom"><span><i/> SHIELD ACTIVE</span><span>TAP GERMS. SAVE YOUR HERO.</span><span>+250 KILL <b> / </b> −125 HIT</span></div>
