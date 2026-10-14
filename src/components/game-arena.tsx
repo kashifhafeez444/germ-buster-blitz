@@ -6,16 +6,16 @@ import { HIT_PENALTY, KILL_POINTS, ROUND_SECONDS } from "@/lib/game-rules";
 import germsImage from "@/assets/germs.png";
 import { SpaceTravel } from "@/components/space-travel";
 
-type Germ = { id: number; type: number; x: number; y: number; born: number };
+type Germ = { id: number; type: number; x: number; y: number; scale: number };
 type Burst = Germ & { hit: boolean };
 export type GameResult = { score: number; kills: number; hits: number };
-// Germs pop in small and grow to full size with a smooth ease-out.
-const GROW_DURATION = 2200;
-const GROW_FROM = 0.55;
-export function germScale(born: number, now: number = performance.now()): number {
-  const progress = Math.min(1, Math.max(0, (now - born) / GROW_DURATION));
-  const eased = 1 - Math.pow(1 - progress, 3);
-  return GROW_FROM + (1 - GROW_FROM) * eased;
+// Germs pop in small and keep swelling until they reach the hero.
+const GROW_FROM = 0.4;
+const GROW_TO = 1.6;
+export function germScale(progress: number): number {
+  const clamped = Math.min(1, Math.max(0, progress));
+  const eased = 1 - Math.pow(1 - clamped, 3);
+  return GROW_FROM + (GROW_TO - GROW_FROM) * eased;
 }
 export function GermSprite({ type, className = "" }: { type: number; className?: string }) {
   return <span className={`germ-sprite germ-type-${type} ${className}`} style={{ backgroundImage: `url(${germsImage})` }} />;
@@ -51,7 +51,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
     const element = arena.current;
     if (!element || countdown !== null) return;
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 0, scale: 0 } });
-    const bodies = new Map<number, { body: Matter.Body; type: number; born: number }>();
+    const bodies = new Map<number, { body: Matter.Body; type: number; startDist: number }>();
     let width = element.clientWidth;
     let height = element.clientHeight;
     const shield = Matter.Bodies.circle(width / 2, height / 2, Math.min(width, height) * 0.13, { isStatic: true, isSensor: true });
