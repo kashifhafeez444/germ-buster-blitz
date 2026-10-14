@@ -83,7 +83,8 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
       if (!item || !active) return;
       bodies.delete(germId);
       Matter.Composite.remove(engine.world, item.body);
-      burst({ id: germId, type: item.type, x: item.body.position.x, y: item.body.position.y, born: item.born }, hit);
+      const dx = item.body.position.x - width / 2, dy = item.body.position.y - height / 2;
+      burst({ id: germId, type: item.type, x: item.body.position.x, y: item.body.position.y, scale: germScale(1 - Math.min(1, Math.hypot(dx, dy) / item.startDist)) }, hit);
       state.current.score += hit ? -HIT_PENALTY : KILL_POINTS;
       if (hit) state.current.hits++; else state.current.kills++;
       setScore(state.current.score);
@@ -117,7 +118,7 @@ export function GameArena({ character, sound, onFinish }: { character: string; s
         const dx = Math.cos(angle), dy = Math.sin(angle);
         const radius = Math.min((width / 2 + 35) / Math.max(Math.abs(dx), 0.001), (height / 2 + 35) / Math.max(Math.abs(dy), 0.001));
         const body = Matter.Bodies.circle(width / 2 + dx * radius, height / 2 + dy * radius, Math.max(24, Math.min(width, height) * 0.038), { label: String(++id), isSensor: true, frictionAir: 0 });
-        bodies.set(id, { body, type: Math.floor(Math.random() * 4), born: now });
+        bodies.set(id, { body, type: Math.floor(Math.random() * 4), startDist: radius });
         Matter.Composite.add(engine.world, body);
         const stage = elapsed < ROUND_SECONDS / 3 ? 0 : elapsed < (ROUND_SECONDS * 2) / 3 ? 1 : 2;
         nextSpawn = now + Math.max(420, (1000 - elapsed * 18) / (stage + 1));
