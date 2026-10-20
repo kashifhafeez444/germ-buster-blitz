@@ -247,3 +247,5 @@
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
 @media (min-width: 1700px) { .header-sponsor { width: 38px; height: 70px; } }
 @media (max-width: 700px) { .header-sponsor { width: 22px; height: 42px; } }
+.leaderboard-scroll { max-height: 52vh; overflow-y: auto; }
+.leaderboard .email-cell { color: var(--muted-foreground); font-size: .85em; overflow-wrap: anywhere; }

@@ -110,7 +110,7 @@ function Index() {
           <div className="instruction"><Shield/><strong className="negative">−125 per hit</strong><span>Guard the shield.<br/>Keep your hero safe.</span></div>
         </div></div>
         <Button variant="arcade" type="submit" className="play-button"><Play fill="currentColor"/> LET’S PLAY <ArrowRight/></Button>
-        <p className="privacy-note">Practice mode · Your details stay in this session.</p>
+        <p className="privacy-note">Your name, email and score are saved to the leaderboard.</p>
       </form>
     </div>}
 
