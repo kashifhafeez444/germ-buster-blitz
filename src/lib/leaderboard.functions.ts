@@ -21,7 +21,7 @@ export const saveScore = createServerFn({ method: "POST" })
   });
 
 export const getLeaderboard = createServerFn({ method: "POST" }).handler(async () => {
-  const res = await fetch(`${BASE}/GetOpellaLeaderboard`, { method: "POST" });
+  const res = await fetch(`${BASE}/GetOpellaLeaderboard`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
   const json = (await res.json().catch(() => null)) as { Status?: boolean; Data?: LeaderRow[] } | null;
   if (!res.ok || !json?.Status || !Array.isArray(json.Data)) throw new Error("Could not load leaderboard");
   return [...json.Data].sort((a, b) => b.Score - a.Score);
