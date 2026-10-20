@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Check, Clock3, Crosshair, Expand, Mail, Medal, P
 import { Button } from "@/components/ui/button";
 import { GameArena, GermSprite, type GameResult } from "@/components/game-arena";
 import { playGameSound, startMusic, stopMusic, unlockAudio } from "@/lib/game-audio";
-import { rankPlayers, sampleLeaders } from "@/lib/game-rules";
+import { getLeaderboard, saveScore, type LeaderRow } from "@/lib/leaderboard.functions";
 import arenaImage from "@/assets/arena.jpg";
 import characterOne from "@/assets/Character-01.png.asset.json";
 import characterTwo from "@/assets/Character-02.png.asset.json";
@@ -39,6 +39,9 @@ function Index() {
   const [sound, setSound] = useState(true);
   const [round, setRound] = useState(0);
   const [result, setResult] = useState<GameResult>({ score: 0, kills: 0, hits: 0 });
+  const [board, setBoard] = useState<LeaderRow[]>([]);
+  const [boardState, setBoardState] = useState<"loading" | "ready" | "error">("loading");
+  const [currentId, setCurrentId] = useState<number | null>(null);
   useEffect(() => {
     if (screen === "playing") startMusic(sound);
     else stopMusic();
@@ -56,7 +59,23 @@ function Index() {
       else await document.documentElement.requestFullscreen();
     } catch { /* Embedded previews may not grant fullscreen permission. */ }
   };
-  const rows = screen === "results" ? rankPlayers(name, result.score) : sampleLeaders.map((p) => ({ ...p, current: false }));
+  const loadBoard = async () => {
+    setBoardState("loading");
+    try { setBoard(await getLeaderboard()); setBoardState("ready"); } catch { setBoardState("error"); }
+  };
+  const finishRound = async (value: GameResult) => {
+    setResult(value);
+    setCurrentId(null);
+    setBoardState("loading");
+    setScreen("results");
+    try {
+      const saved = await saveScore({ data: { Name: name.trim(), Email: email.trim(), Score: value.score } });
+      setCurrentId(saved.id);
+    } catch { /* still show the leaderboard if saving fails */ }
+    await loadBoard();
+  };
+  useEffect(() => { if (screen === "leaders") void loadBoard(); }, [screen]);
+  const rows = board.map((p) => ({ name: p.Name, email: p.Email, score: p.Score, id: p.ID, current: screen === "results" && p.ID === currentId }));
 
   return <main className={`game-app ${screen === "playing" ? "playing" : ""}`}>
     <img className="arena-backdrop" src={arenaImage} alt="" width={1920} height={1088}/>
@@ -91,19 +110,19 @@ function Index() {
           <div className="instruction"><Shield/><strong className="negative">−125 per hit</strong><span>Guard the shield.<br/>Keep your hero safe.</span></div>
         </div></div>
         <Button variant="arcade" type="submit" className="play-button"><Play fill="currentColor"/> LET’S PLAY <ArrowRight/></Button>
-        <p className="privacy-note">Practice mode · Your details stay in this session.</p>
+        <p className="privacy-note">Your name, email and score are saved to the leaderboard.</p>
       </form>
     </div>}
 
-    {screen === "playing" && <GameArena key={round} character={character.image} sound={sound} onFinish={(value) => { setResult(value); setScreen("results"); }}/>}
+    {screen === "playing" && <GameArena key={round} character={character.image} sound={sound} onFinish={(value) => { void finishRound(value); }}/>}
 
     {(screen === "results" || screen === "leaders") && <section className="results-page">
       <span className="results-eyebrow">{screen === "results" ? "MISSION COMPLETE" : "THE HALL OF HEROES"}</span>
       <h1>{screen === "results" ? `Nice work, ${name.trim()}!` : "Big taps. Bigger legends."}</h1>
       <p>{screen === "results" ? "Thirty seconds of courage. A hero worth protecting." : "The scores to beat. Ready to make your mark?"}</p>
       {screen === "results" && <div className="result-summary"><img src={character.image} alt={character.name}/><div className="final-score"><span>YOUR FINAL SCORE</span><strong>{result.score.toLocaleString()}</strong><div className="result-stats"><span><b>{result.kills}</b> germs busted</span><span><b>{result.hits}</b> shield hits</span></div></div></div>}
-      <div className="leaderboard-title"><h2><Trophy/> Leaderboard</h2><span>Sample rankings · Practice mode</span></div>
-      <table className="leaderboard"><thead><tr><th>RANK</th><th>HERO</th><th>SCORE</th></tr></thead><tbody>{rows.map((player, i) => <tr key={`${player.name}-${i}`} className={player.current ? "current-player" : ""}><td>{i === 0 ? <Medal className="rank-icon"/> : String(i + 1).padStart(2, "0")}</td><td>{player.name}{player.current && <span className="you-tag">YOU</span>}</td><td>{player.score.toLocaleString()}</td></tr>)}</tbody></table>
+      <div className="leaderboard-title"><h2><Trophy/> Leaderboard</h2><span>{boardState === "loading" ? "Loading…" : boardState === "error" ? "Couldn’t load the leaderboard" : `${rows.length} heroes`}</span></div>
+      <div className="leaderboard-scroll"><table className="leaderboard"><thead><tr><th>RANK</th><th>HERO</th><th>EMAIL</th><th>SCORE</th></tr></thead><tbody>{rows.map((player, i) => <tr key={player.id} className={player.current ? "current-player" : ""}><td>{i === 0 ? <Medal className="rank-icon"/> : String(i + 1).padStart(2, "0")}</td><td>{player.name}{player.current && <span className="you-tag">YOU</span>}</td><td className="email-cell">{player.email}</td><td>{player.score.toLocaleString()}</td></tr>)}</tbody></table></div>
       <div className="results-actions">{screen === "results" && <Button variant="arcade" onClick={start}><RotateCcw/> PLAY AGAIN</Button>}<Button variant={screen === "leaders" ? "arcade" : "outline"} className="back-button" onClick={() => { setScreen("entry"); if (screen === "results") { setName(""); setEmail(""); } }}>{screen === "leaders" ? <ArrowLeft/> : <UserRound/>}{screen === "leaders" ? "BACK TO GAME" : "NEW PLAYER"}</Button></div>
     </section>}
 
